@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kartu Nama Digital - Live Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md glass rounded-3xl p-6 shadow-2xl neon-glow text-center relative overflow-hidden">
+        <!-- Indikator Loading -->
+        <div id="loading" class="py-12">
+            <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-3xl"></i>
+            <p class="text-sm text-gray-400 mt-3">Memuat data dari Google Sheets...</p>
+        </div>
+
+        <!-- Kartu Konten Utama -->
+        <div id="card-content" class="hidden">
+            <div class="relative w-28 h-28 mx-auto mb-4">
+                <img id="profile-foto" src="" alt="Avatar"
+                    class="w-full h-full rounded-full object-cover border-2 border-cyan-400 shadow-lg">
+            </div>
+
+            <h1 id="profile-nama" class="text-2xl font-bold text-white tracking-wide"></h1>
+            <p id="profile-jabatan" class="text-cyan-400 font-medium text-sm mt-1"></p>
+            <p id="profile-perusahaan" class="text-gray-400 text-xs mt-0.5"></p>
+
+            <div class="mt-6 space-y-3">
+                <a id="link-wa" href="#" target="_blank"
+                    class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition shadow-lg">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                </a>
+                <a id="link-email" href="#"
+                    class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-medium transition">
+                    <i class="fa-solid fa-envelope text-lg text-cyan-400"></i> Email Saya
+                </a>
+                <a id="link-ig" href="#" target="_blank"
+                    class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-medium transition">
+                    <i class="fa-brands fa-instagram text-lg text-pink-400"></i> Instagram
+                </a>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center">
+                <span>Powered by Google Sheets & NFC</span>
+                <span class="text-cyan-400 font-semibold">Online Sync</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ganti URL di bawah ini dengan Web App URL dari Google Apps Script Anda
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxq6dY4d294_q-lT5gYabnVCsjgvQixXE0P_o0_4uLreITu5ex0UEG-dfgbOTKy3j0q/exec";
+
+        async function loadCardData() {
+            try {
+                // Ambil parameter ID dari URL jika ada (contoh: ?id=1)
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id') || '1';
+
+                const response = await fetch(`${SCRIPT_URL}?id=${id}`);
+                const data = await response.json();
+
+                // Masukkan data dari Sheets ke elemen HTML
+                document.getElementById('profile-nama').innerText = data.nama || 'Nama Anda';
+                document.getElementById('profile-jabatan').innerText = data.jabatan || 'Jabatan';
+                document.getElementById('profile-perusahaan').innerText = data.perusahaan || 'Perusahaan';
+                document.getElementById('profile-foto').src = data.foto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400';
+
+                document.getElementById('link-wa').href = `https://wa.me/${data.whatsapp}`;
+                document.getElementById('link-email').href = `mailto:${data.email}`;
+                document.getElementById('link-ig').href = data.instagram;
+
+                // Sembunyikan loading, tampilkan kartu
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('card-content').classList.remove('hidden');
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `<p class="text-red-400 text-sm">Gagal memuat data dari Google Sheets. Periksa kembali URL script Anda.</p>`;
+            }
+        }
+
+        loadCardData();
+    </script>
+</body>
+
+</html>
